@@ -10,7 +10,7 @@ class NewsController {
     // Display the list of news items
     public function list() {
         $model = new NewsModel();              // Create an instance of the model
-        $news_list = $model->getAll();              // Fetch all news items
+        $news_list = $model->getAll();         // Fetch all news items
         require 'view/news_list.php';          // Load the view to display the list
     }
 
@@ -20,4 +20,93 @@ class NewsController {
         $news_item = $model->getBySlug($param); // Fetch a news item by slug
         require 'view/news_details.php';       // Load the view to display the item
     }
+
+    public function createForm() {
+        require 'view/news_create.php';
+    }
+
+
+    public function createNews() {
+        header('Content-Type: application/json');
+
+        // Optional: only accept AJAX requests
+        if (
+            !isset($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest'
+        ) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request type.']);
+            return;
+        }
+
+        // Retrieve form fields
+        $title = trim($_POST['title'] ?? '');
+        $intro = trim($_POST['intro'] ?? '');
+        $content = trim($_POST['content'] ?? '');
+        $publishedAt = date('Y-m-d H:i:s');
+
+        // Simulated author (replace with $_SESSION['user'] in real auth)
+        $author = 'Anonymous';
+
+        // Validate required fields
+        if ($title === '' || $intro === '' || $content === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'All fields are required.']);
+            return;
+        }
+
+        // Generate slug
+        $slug = $this->generateSlug($title, $publishedAt);
+
+        // Handle file upload
+        $imagePath = null;
+        if (!empty($_FILES['image']['name'])) {
+            $uploadDir = 'uploads/';
+            $filename = basename($_FILES['image']['name']);
+            $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png'];
+
+            if (!in_array($extension, $allowed)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Only JPG and PNG files are allowed.']);
+                return;
+            }
+
+            $newFileName = uniqid('news_', true) . '.' . $extension;
+            $destination = $uploadDir . $newFileName;
+
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $destination)) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Image upload failed.']);
+                return;
+            }
+
+            $imagePath = $destination;
+        }
+
+        // Save to database
+        $model = new NewsModel();
+        $model->create([
+            'title'        => $title,
+            'slug'         => $slug,
+            'published_at' => $publishedAt,
+            'author'       => $author,
+            'intro'        => $intro,
+            'content'      => $content,
+            'image_path'   => $imagePath
+        ]);
+
+        // Success response
+        echo json_encode(['success' => true]);
+    }
+
+
+    private function generateSlug($title, $publishedAt) {
+        $date = date('Y-m-d', strtotime($publishedAt));
+        $slug = strtolower(trim($title));
+        $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);
+        $slug = trim($slug, '-');
+        return $date . '-' . $slug;
+    }
+
 }

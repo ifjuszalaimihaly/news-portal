@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>Hírek</title>
+    <title>News</title>
     <style>
         body {
             font-family: Arial, sans-serif;

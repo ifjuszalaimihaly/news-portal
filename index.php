@@ -1,25 +1,41 @@
 <?php
 define('BASEPATH', true);
 
-// Get the full URI
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// Get the request method
+$requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Remove the part before index.php (if any)
-$base = '/index.php';
-if (strpos($uri, $base) === 0) {
-    $uri = substr($uri, strlen($base));
+if ($requestMethod === 'GET') {
+
+    // Get the full URI
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+    // Remove the part before index.php (if any)
+    $base = '/index.php';
+    if (strpos($uri, $base) === 0) {
+        $uri = substr($uri, strlen($base));
+    }
+
+    // Clean up
+    $uri = trim($uri, '/'); // e.g., 'news/show/5'
+
+    // Split into segments
+    $segments = explode('/', $uri);
+
+    // Defaults
+    $controller = $segments[0] ?? 'news';
+    $action     = $segments[1] ?? 'list';
+    $param      = $segments[2] ?? null;
+
+} elseif ($requestMethod === 'POST') {
+
+    if ($_POST['form_action'] === 'create_news') {
+            $controller = 'news';
+            $action = 'create_news';
+    }
+
 }
 
-// Clean up
-$uri = trim($uri, '/'); // e.g., 'news/show/5'
 
-// Split into segments
-$segments = explode('/', $uri);
-
-// Defaults
-$controller = $segments[0] ?? 'news';
-$action     = $segments[1] ?? 'list';
-$param      = $segments[2] ?? null;
 
 // Routing example
 if ($controller === 'news') {
@@ -32,6 +48,12 @@ if ($controller === 'news') {
             break;
         case 'show':
             $newsController->show($param);
+            break;
+        case 'create_form':
+            $newsController->createForm();
+            break;
+        case 'create_news':
+            $newsController->createNews();
             break;
         default:
             http_response_code(404);
