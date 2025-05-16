@@ -44,4 +44,11 @@ class NewsModel {
             'image_path'   => $data['image_path']
         ]);
     }
+
+    public function deleteBySlug($slug) {
+        global $pdo;
+
+        $stmt = $pdo->prepare("DELETE FROM news WHERE slug = :slug LIMIT 1");
+        return $stmt->execute(['slug' => $slug]);
+    }
 }

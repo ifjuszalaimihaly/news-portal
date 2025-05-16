@@ -29,8 +29,11 @@ if ($requestMethod === 'GET') {
 } elseif ($requestMethod === 'POST') {
 
     if ($_POST['form_action'] === 'create_news') {
-            $controller = 'news';
-            $action = 'create_news';
+        $controller = 'news';
+        $action = 'create_news';
+    } elseif ($_POST['form_action'] === 'delete_news') {
+        $controller = 'news';
+        $action = 'delete_news';
     }
 
 }
@@ -54,6 +57,9 @@ if ($controller === 'news') {
             break;
         case 'create_news':
             $newsController->createNews();
+            break;
+        case 'delete_news':
+            $newsController->deleteNews();
             break;
         default:
             http_response_code(404);

@@ -100,6 +100,56 @@ class NewsController {
         echo json_encode(['success' => true]);
     }
 
+    public function deleteNews() {
+        header('Content-Type: application/json');
+
+        // Allow only AJAX POST requests
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
+            !isset($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request type.']);
+            return;
+        }
+
+        // Get slug from POST data
+        $slug = trim($_POST['slug'] ?? '');
+
+        if ($slug === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing slug parameter.']);
+            return;
+        }
+
+        // Load news item by slug
+        $model = new NewsModel();
+        $news_item = $model->getBySlug($slug);
+
+        if (!$news_item) {
+            http_response_code(404);
+            echo json_encode(['error' => 'News item not found.']);
+            return;
+        }
+
+        // Delete the image file if it exists
+        if (!empty($news_item['image_path']) && file_exists($news_item['image_path'])) {
+            if (!unlink($news_item['image_path'])) {
+                http_response_code(500);
+                echo json_encode(['error' => 'News deleted, but image file could not be removed.']);
+                return;
+            }
+        }
+
+        // Delete the news item from the database
+        $deleted = $model->deleteBySlug($slug);
+
+        if ($deleted) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to delete news item from database.']);
+        }
+    }
 
     private function generateSlug($title, $publishedAt) {
         $date = date('Y-m-d', strtotime($publishedAt));
