@@ -3,66 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Create News Article</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-            max-width: 600px;
-            margin: auto;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-top: 1rem;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="datetime-local"],
-        textarea {
-            padding: 0.5rem;
-            font-size: 1rem;
-            width: 100%;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        input[type="file"] {
-            margin-top: 0.5rem;
-        }
-
-        input[type="submit"] {
-            margin-top: 2rem;
-            padding: 0.75rem;
-            background-color: #007BFF;
-            color: white;
-            font-size: 1rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        .message {
-            margin-top: 1rem;
-            font-weight: bold;
-        }
-    </style>
-
+    <link rel="stylesheet" href="/styles.css">
     <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-
+    <?php include 'view/partials/header.php'; ?>
     <h1>Create News Article</h1>
 
     <div class="message" id="responseMessage"></div>

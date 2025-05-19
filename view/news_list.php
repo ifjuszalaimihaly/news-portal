@@ -3,51 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>News</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-        }
-        .news-item {
-            border-bottom: 1px solid #ccc;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-        }
-        .news-title {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-        .news-meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        .news-intro {
-            font-size: 1rem;
-        }
-        .news-link {
-            margin-top: 0.5rem;
-            display: inline-block;
-            font-weight: bold;
-            color: #007BFF;
-            text-decoration: none;
-        }
-        .news-link:hover {
-            text-decoration: underline;
-        }
-        .action-buttons {
-            margin-top: 0.5rem;
-        }
-        .action-buttons button {
-            margin-right: 0.5rem;
-            padding: 0.3rem 0.6rem;
-            cursor: pointer;
-        }
-    </style>
-
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <?php include 'view/partials/header.php'; ?>
     <h1>The newest news</h1>
 
     <?php if (empty($news_list)): ?>

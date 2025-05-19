@@ -1,12 +1,11 @@
 <?php
+session_start();
 define('BASEPATH', true);
-
 
 // Get the request method
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 if ($requestMethod === 'GET') {
-
     // Get the full URI
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -28,24 +27,23 @@ if ($requestMethod === 'GET') {
     $param      = $segments[2] ?? null;
 
 } elseif ($requestMethod === 'POST') {
-
     if ($_POST['form_action'] === 'handle_news_form') {
         $controller = 'news';
         $action = 'handle_news_form';
     } elseif ($_POST['form_action'] === 'delete_news') {
         $controller = 'news';
         $action = 'delete_news';
+    } elseif ($_POST['form_action'] === 'handle_login') {
+        $controller = 'users';
+        $action = 'handle_login';
     }
-
 }
 
-
-
-// Routing example
+// Routing
 if ($controller === 'news') {
     require_once 'controller/NewsController.php';
     $newsController = new NewsController();
-    
+
     switch ($action) {
         case 'list':
             $newsController->list();
@@ -63,10 +61,30 @@ if ($controller === 'news') {
             $newsController->deleteNews();
             break;
         default:
-            http_response_code(404);
-            echo "Unknown action: $action";
+            header("Location: /index.php/news/list");
+            exit;
     }
+
+} elseif ($controller === 'users') {
+    require_once 'controller/UsersController.php';
+    $usersController = new UsersController();
+
+    switch ($action) {
+        case 'login':
+            $usersController->showLoginForm();
+            break;
+        case 'handle_login':
+            $usersController->handleLogin();
+            break;
+        case 'logout':
+            $usersController->logout();
+            break;
+        default:
+            header("Location: /index.php/news/list");
+            exit;
+    }
+
 } else {
-    http_response_code(404);
-    echo "Unsupported controller: $controller";
+    header("Location: /index.php/news/list");
+    exit;
 }
