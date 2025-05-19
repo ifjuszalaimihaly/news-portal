@@ -63,7 +63,7 @@ class NewsController {
         // Handle file upload
         $imagePath = null;
         if (!empty($_FILES['image']['name'])) {
-            $imagePath = $this->stroreImage();
+            $imagePath = $this->storeImage();
         }
 
         // Save to database
@@ -72,6 +72,8 @@ class NewsController {
         if (!is_null($id)) {
 
             $updated_news_item = $model->getById($id);
+
+            $this->deleteImage($updated_news_item);
 
             if($updated_news_item['user_id'] !== $_SESSION['user']['id']){
                 http_response_code(401);
@@ -167,18 +169,28 @@ class NewsController {
         return $date . '-' . $slug;
     }
 
-    private function stroreImage() {
+    private function storeImage() {
         $uploadDir = 'uploads/';
         $filename = basename($_FILES['image']['name']);
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png'];
+        $maxSize = 2 * 1024 * 1024; // 2 MB
 
+        // Validate file extension
         if (!in_array($extension, $allowed)) {
             http_response_code(400);
             echo json_encode(['error' => 'Only JPG and PNG files are allowed.']);
             return;
         }
 
+        // Validate file size
+        if ($_FILES['image']['size'] > $maxSize) {
+            http_response_code(400);
+            echo json_encode(['error' => 'The image must be smaller than 2 MB.']);
+            return;
+        }
+
+        // Save the file
         $newFileName = uniqid('news_', true) . '.' . $extension;
         $destination = $uploadDir . $newFileName;
 
@@ -190,6 +202,7 @@ class NewsController {
 
         return $destination;
     }
+
 
     private function deleteImage($news_item) {
         // Delete the image file if it exists
