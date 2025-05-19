@@ -70,6 +70,15 @@ class NewsController {
         $model = new NewsModel();
 
         if (!is_null($id)) {
+
+            $updated_news_item = $model->getById($id);
+
+            if($updated_news_item['user_id'] !== $_SESSION['user']['id']){
+                http_response_code(401);
+                echo json_encode(['error' => 'Editing this article is not allowed for this user.']);
+                return;
+            }
+
             $model->update(
                 $id,
                 [

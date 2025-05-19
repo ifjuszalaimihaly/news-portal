@@ -54,6 +54,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    console.log("succcess");
                     const message = isEdit ? 'News successfully updated!' : 'News successfully created!';
                     $('#responseMessage').css('color', 'green').text(message);
                     if (!isEdit) {
@@ -61,8 +62,18 @@
                     }
                 },
                 error: function(xhr, status, error) {
-                    const message = isEdit ? 'Failed to update news: ' : 'Failed to create news: ';
-                    $('#responseMessage').css('color', 'red').text(message + error);
+                        let message = 'An error occurred.';
+
+                        try {
+                            const json = JSON.parse(xhr.responseText);
+                            if (json.error) {
+                                message = json.error;
+                            }
+                        } catch (e) {
+                            message = 'Unexpected error: ' + error;
+                        }
+
+                        $('#responseMessage').css('color', 'red').text(message);
                 }
             });
         });
