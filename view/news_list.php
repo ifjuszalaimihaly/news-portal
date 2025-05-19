@@ -18,7 +18,7 @@
                 <div class="news-title"><?= htmlspecialchars($news_item['title']) ?></div>
                 <div class="news-meta">
                     <?= htmlspecialchars($news_item['published_at']) ?> — 
-                    <?= htmlspecialchars($news_item['author']) ?>
+                    <?= htmlspecialchars($news_item['author_name']) ?>
                 </div>
                 <div class="news-intro"><?= nl2br(htmlspecialchars($news_item['intro'])) ?></div>
                 <a class="news-link" href="/index.php/news/show/<?= urlencode($news_item['slug']) ?>">Read more →</a>

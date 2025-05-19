@@ -10,7 +10,7 @@
     <?php include 'view/partials/header.php'; ?>
     <div class="news-title"><?= htmlspecialchars($news_item['title']) ?></div>
     <div class="news-meta">
-        <?= htmlspecialchars($news_item['published_at']) ?> — <?= htmlspecialchars($news_item['author']) ?>
+        <?= htmlspecialchars($news_item['published_at']) ?> — <?= htmlspecialchars($news_item['author_name']) ?>
     </div>
 
     <?php if (!empty($news_item['image_path'])): ?>

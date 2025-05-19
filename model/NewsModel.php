@@ -22,10 +22,22 @@ class NewsModel {
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    // Retrieve a single news item by its slug
+
+
+    // Retrieve a single news item by its slug including author info
     public function getBySlug($slug) {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT * FROM news WHERE slug = :slug LIMIT 1");
+
+        $sql = "SELECT 
+                    news.*, 
+                    users.name AS author_name, 
+                    users.email AS author_email
+                FROM news
+                INNER JOIN users ON news.user_id = users.id
+                WHERE news.slug = :slug
+                LIMIT 1";
+
+        $stmt = $pdo->prepare($sql);
         $stmt->execute(['slug' => $slug]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
