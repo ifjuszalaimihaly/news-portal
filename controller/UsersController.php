@@ -45,6 +45,8 @@ class UsersController {
         $model = new UserModel();
         $user = $model->getByEmail($email);
 
+
+        // Check if user give a good password, reject at failure
         if (!$user || !password_verify($password, $user['password'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Invalid email or password.']);

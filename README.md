@@ -10,8 +10,9 @@ Key functionality:
 
 - Users can login to the system
 Test users:
+------
 email: alice@example.com
 password: uKf7@E!c9wZr
-
+------
 email: bob@example.com
 password: P#v9eLt3*Msd

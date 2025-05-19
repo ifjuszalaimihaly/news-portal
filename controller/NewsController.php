@@ -26,9 +26,8 @@ class NewsController {
         if (!is_null($param)) {
             $news_item = $model->getBySlug($param); // Fetch a news item by slug
         }
-        require 'view/news_form.php';
+        require 'view/news_form.php';          // Load the form view (for create or edit)
     }
-
 
     public function handleNewsForm() {
         header('Content-Type: application/json');
@@ -48,7 +47,7 @@ class NewsController {
         $title = trim($_POST['title'] ?? '');
         $intro = trim($_POST['intro'] ?? '');
         $content = trim($_POST['content'] ?? '');
-        $publishedAt = date('Y-m-d H:i:s');
+        $publishedAt = date('Y-m-d H:i:s');     // Use current timestamp as publication date
 
         // Validate required fields
         if ($title === '' || $intro === '' || $content === '') {
@@ -57,30 +56,32 @@ class NewsController {
             return;
         }
 
-        // Generate slug
+        // Generate slug from title and date
         $slug = $this->generateSlug($title, $publishedAt);
 
         // Handle file upload
         $imagePath = null;
         if (!empty($_FILES['image']['name'])) {
-            $imagePath = $this->storeImage();
+            $imagePath = $this->storeImage();  // Save the uploaded image
         }
 
         // Save to database
         $model = new NewsModel();
 
         if (!is_null($id)) {
+            $updated_news_item = $model->getById($id); // Load existing news item
 
-            $updated_news_item = $model->getById($id);
-
-            $this->deleteImage($updated_news_item);
-
-            if($updated_news_item['user_id'] !== $_SESSION['user']['id']){
+            // Check ownership before editing
+            if ($updated_news_item['user_id'] !== $_SESSION['user']['id']) {
                 http_response_code(401);
                 echo json_encode(['error' => 'Editing this article is not allowed for this user.']);
                 return;
             }
 
+            $this->deleteImage($updated_news_item);    // Delete previous image if needed
+
+
+            // Update existing record
             $model->update(
                 $id,
                 [
@@ -92,8 +93,8 @@ class NewsController {
                     'image_path'   => $imagePath
                 ]
             );
-
         } else {
+            // Create new record
             $model->create([
                 'title'        => $title,
                 'slug'         => $slug,
@@ -131,7 +132,7 @@ class NewsController {
 
         // Load news item by id
         $model = new NewsModel();
-        $news_item = $model->getById($id);
+        $news_item = $model->getById($id);     // Fetch item for validation and deletion
 
         if (!$news_item) {
             http_response_code(404);
@@ -139,7 +140,8 @@ class NewsController {
             return;
         }
 
-        if($news_item['user_id'] !== $_SESSION['user']['id']){
+        // Check ownership before deletion
+        if ($news_item['user_id'] !== $_SESSION['user']['id']) {
             http_response_code(401);
             echo json_encode(['error' => 'Deleting this article is not allowed for this user.']);
             return;
@@ -162,6 +164,7 @@ class NewsController {
     }
 
     private function generateSlug($title, $publishedAt) {
+        // Create a URL-friendly slug from title and publication date
         $date = date('Y-m-d', strtotime($publishedAt));
         $slug = strtolower(trim($title));
         $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);
@@ -190,7 +193,7 @@ class NewsController {
             return;
         }
 
-        // Save the file
+        // Save the file with a unique name
         $newFileName = uniqid('news_', true) . '.' . $extension;
         $destination = $uploadDir . $newFileName;
 
@@ -202,7 +205,6 @@ class NewsController {
 
         return $destination;
     }
-
 
     private function deleteImage($news_item) {
         // Delete the image file if it exists
