@@ -1,6 +1,7 @@
 <?php
 define('BASEPATH', true);
 
+
 // Get the request method
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -28,9 +29,9 @@ if ($requestMethod === 'GET') {
 
 } elseif ($requestMethod === 'POST') {
 
-    if ($_POST['form_action'] === 'create_news') {
+    if ($_POST['form_action'] === 'handle_news_form') {
         $controller = 'news';
-        $action = 'create_news';
+        $action = 'handle_news_form';
     } elseif ($_POST['form_action'] === 'delete_news') {
         $controller = 'news';
         $action = 'delete_news';
@@ -52,11 +53,11 @@ if ($controller === 'news') {
         case 'show':
             $newsController->show($param);
             break;
-        case 'create_form':
-            $newsController->createForm();
+        case 'show_news_form':
+            $newsController->showForm($param);
             break;
-        case 'create_news':
-            $newsController->createNews();
+        case 'handle_news_form':
+            $newsController->handleNewsForm();
             break;
         case 'delete_news':
             $newsController->deleteNews();

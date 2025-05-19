@@ -21,6 +21,14 @@ class NewsModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Retrieve a single news item by its id
+    public function getById($id) {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT * FROM news WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Create a new news item
     public function create($data) {
         global $pdo;
@@ -45,10 +53,43 @@ class NewsModel {
         ]);
     }
 
+    public function update($id, $data) {
+        global $pdo;
+
+        $sql = "UPDATE news SET 
+                    title = :title,
+                    slug = :slug,
+                    published_at = :published_at,
+                    intro = :intro,
+                    content = :content,
+                    image_path = :image_path
+                WHERE id = :id";
+
+        $stmt = $pdo->prepare($sql);
+
+        return $stmt->execute([
+            'title'        => $data['title'],
+            'slug'         => $data['slug'],
+            'published_at' => $data['published_at'],
+            'intro'        => $data['intro'],
+            'content'      => $data['content'],
+            'image_path'   => $data['image_path'],
+            'id'           => $id
+        ]);
+    }
+
     public function deleteBySlug($slug) {
         global $pdo;
 
         $stmt = $pdo->prepare("DELETE FROM news WHERE slug = :slug LIMIT 1");
         return $stmt->execute(['slug' => $slug]);
+    }
+
+
+    public function deleteById($id) {
+        global $pdo;
+
+        $stmt = $pdo->prepare("DELETE FROM news WHERE id = :id LIMIT 1");
+        return $stmt->execute(['id' => $id]);
     }
 }

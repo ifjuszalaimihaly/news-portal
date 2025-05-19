@@ -69,20 +69,28 @@
 
     <form id="newsForm" method="POST" enctype="multipart/form-data">
         <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required>
+        <input type="text" id="title" name="title" 
+            value="<?= htmlspecialchars($news_item['title'] ?? '') ?>" required>
 
         <label for="intro">Introduction:</label>
-        <textarea id="intro" name="intro" required></textarea>
+        <textarea id="intro" name="intro" required><?= htmlspecialchars($news_item['intro'] ?? '') ?></textarea>
 
         <label for="content">Full Content:</label>
-        <textarea id="content" name="content" required></textarea>
+        <textarea id="content" name="content" required><?= htmlspecialchars($news_item['content'] ?? '') ?></textarea>
 
         <label for="image">Upload Image (PNG or JPEG):</label>
         <input type="file" id="image" name="image" accept="image/png, image/jpeg">
 
-        <input type="hidden" name="form_action" value="create_news">
+        <?php if (!empty($news_item['image_path'])): ?>
+            <p>Current image: <strong><?= htmlspecialchars(basename($news_item['image_path'])) ?></strong></p>
+        <?php endif; ?>
 
-        <input type="submit" value="Save News">
+        <input type="hidden" name="form_action" value="handle_news_form">
+        <?php if (!is_null($news_item)): ?>
+            <input type="hidden" name="id" value="<?= $news_item['id'] ?>">
+        <?php endif; ?>
+        
+        <input type="submit" value="<?= isset($news_item) ? 'Update News' : 'Save News' ?>">
     </form>
 
     <script>
@@ -91,6 +99,7 @@
 
             const form = $('#newsForm')[0];
             const formData = new FormData(form);
+            const isEdit = formData.has('id');
 
             $.ajax({
                 url: '/index.php',
@@ -99,11 +108,15 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    $('#responseMessage').css('color', 'green').text('News successfully created!');
-                    $('#newsForm')[0].reset();
+                    const message = isEdit ? 'News successfully updated!' : 'News successfully created!';
+                    $('#responseMessage').css('color', 'green').text(message);
+                    if (!isEdit) {
+                        $('#newsForm')[0].reset(); // only reset if creating new
+                    }
                 },
                 error: function(xhr, status, error) {
-                    $('#responseMessage').css('color', 'red').text('Failed to create news: ' + error);
+                    const message = isEdit ? 'Failed to update news: ' : 'Failed to create news: ';
+                    $('#responseMessage').css('color', 'red').text(message + error);
                 }
             });
         });

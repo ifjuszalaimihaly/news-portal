@@ -21,12 +21,16 @@ class NewsController {
         require 'view/news_details.php';       // Load the view to display the item
     }
 
-    public function createForm() {
-        require 'view/news_create.php';
+    public function showForm($param) {
+        $model = new NewsModel();              // Create an instance of the model
+        if (!is_null($param)) {
+            $news_item = $model->getBySlug($param); // Fetch a news item by slug
+        }
+        require 'view/news_form.php';
     }
 
 
-    public function createNews() {
+    public function handleNewsForm() {
         header('Content-Type: application/json');
 
         // Optional: only accept AJAX requests
@@ -40,6 +44,7 @@ class NewsController {
         }
 
         // Retrieve form fields
+        $id = $_POST['id'] ?? null;
         $title = trim($_POST['title'] ?? '');
         $intro = trim($_POST['intro'] ?? '');
         $content = trim($_POST['content'] ?? '');
@@ -61,40 +66,36 @@ class NewsController {
         // Handle file upload
         $imagePath = null;
         if (!empty($_FILES['image']['name'])) {
-            $uploadDir = 'uploads/';
-            $filename = basename($_FILES['image']['name']);
-            $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png'];
-
-            if (!in_array($extension, $allowed)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Only JPG and PNG files are allowed.']);
-                return;
-            }
-
-            $newFileName = uniqid('news_', true) . '.' . $extension;
-            $destination = $uploadDir . $newFileName;
-
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $destination)) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Image upload failed.']);
-                return;
-            }
-
-            $imagePath = $destination;
+            $imagePath = $this->stroreImage();
         }
 
         // Save to database
         $model = new NewsModel();
-        $model->create([
-            'title'        => $title,
-            'slug'         => $slug,
-            'published_at' => $publishedAt,
-            'author'       => $author,
-            'intro'        => $intro,
-            'content'      => $content,
-            'image_path'   => $imagePath
-        ]);
+
+        if (!is_null($id)) {
+            $model->update(
+                $id,
+                [
+                    'title'        => $title,
+                    'slug'         => $slug,
+                    'published_at' => $publishedAt,
+                    'intro'        => $intro,
+                    'content'      => $content,
+                    'image_path'   => $imagePath
+                ]
+            );
+
+        } else {
+            $model->create([
+                'title'        => $title,
+                'slug'         => $slug,
+                'published_at' => $publishedAt,
+                'author'       => $author,
+                'intro'        => $intro,
+                'content'      => $content,
+                'image_path'   => $imagePath
+            ]);
+        }
 
         // Success response
         echo json_encode(['success' => true]);
@@ -112,18 +113,18 @@ class NewsController {
             return;
         }
 
-        // Get slug from POST data
-        $slug = trim($_POST['slug'] ?? '');
+        // Get id from POST data
+        $id = trim($_POST['id'] ?? '');
 
-        if ($slug === '') {
+        if ($id === '') {
             http_response_code(400);
             echo json_encode(['error' => 'Missing slug parameter.']);
             return;
         }
 
-        // Load news item by slug
+        // Load news item by id
         $model = new NewsModel();
-        $news_item = $model->getBySlug($slug);
+        $news_item = $model->getById($id);
 
         if (!$news_item) {
             http_response_code(404);
@@ -133,15 +134,11 @@ class NewsController {
 
         // Delete the image file if it exists
         if (!empty($news_item['image_path']) && file_exists($news_item['image_path'])) {
-            if (!unlink($news_item['image_path'])) {
-                http_response_code(500);
-                echo json_encode(['error' => 'News deleted, but image file could not be removed.']);
-                return;
-            }
+            $this->deleteImage($news_item);
         }
 
         // Delete the news item from the database
-        $deleted = $model->deleteBySlug($slug);
+        $deleted = $model->deleteById($id);
 
         if ($deleted) {
             echo json_encode(['success' => true]);
@@ -157,6 +154,41 @@ class NewsController {
         $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);
         $slug = trim($slug, '-');
         return $date . '-' . $slug;
+    }
+
+    private function stroreImage() {
+        $uploadDir = 'uploads/';
+        $filename = basename($_FILES['image']['name']);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png'];
+
+        if (!in_array($extension, $allowed)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Only JPG and PNG files are allowed.']);
+            return;
+        }
+
+        $newFileName = uniqid('news_', true) . '.' . $extension;
+        $destination = $uploadDir . $newFileName;
+
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $destination)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Image upload failed.']);
+            return;
+        }
+
+        return $destination;
+    }
+
+    private function deleteImage($news_item) {
+        // Delete the image file if it exists
+        if (!empty($news_item['image_path']) && file_exists($news_item['image_path'])) {
+            if (!unlink($news_item['image_path'])) {
+                http_response_code(500);
+                echo json_encode(['error' => 'News deleted, but image file could not be removed.']);
+                return;
+            }
+        }
     }
 
 }

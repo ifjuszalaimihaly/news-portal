@@ -54,7 +54,7 @@
         <p>There are no available news</p>
     <?php else: ?>
         <?php foreach ($news_list as $news_item): ?>
-            <div class="news-item" data-slug="<?= htmlspecialchars($news_item['slug']) ?>">
+            <div class="news-item" data-slug="<?= htmlspecialchars($news_item['slug']) ?>" data-id="<?= $news_item['id'] ?>">
                 <div class="news-title"><?= htmlspecialchars($news_item['title']) ?></div>
                 <div class="news-meta">
                     <?= htmlspecialchars($news_item['published_at']) ?> — 
@@ -76,13 +76,14 @@
             $('.delete-button').click(function () {
                 const item = $(this).closest('.news-item');
                 const slug = item.data('slug');
+                const id = item.data('id');
 
                 if (!confirm('Are you sure you want to delete this news item?')) return;
 
                 $.ajax({
                     url: '/index.php',
                     method: 'POST',
-                    data: { slug: slug, form_action: 'delete_news'},
+                    data: { id: id, form_action: 'delete_news'},
                     success: function (response) {
                         if (response.success) {
                             item.remove();
@@ -98,7 +99,7 @@
 
             $('.edit-button').click(function () {
                 const slug = $(this).closest('.news-item').data('slug');
-                window.location.href = '/index.php/news/edit/' + encodeURIComponent(slug);
+                window.location.href = '/index.php/news/show_news_form/' + encodeURIComponent(slug);
             });
         });
     </script>
