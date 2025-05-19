@@ -23,10 +23,12 @@
                 <div class="news-intro"><?= nl2br(htmlspecialchars($news_item['intro'])) ?></div>
                 <a class="news-link" href="/index.php/news/show/<?= urlencode($news_item['slug']) ?>">Read more →</a>
 
+                <?php if(isset($_SESSION['user']['id']) && $_SESSION['user']['id'] === $news_item['user_id']): ?>
                 <div class="action-buttons">
                     <button class="edit-button">Edit</button>
                     <button class="delete-button">Delete</button>
                 </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>

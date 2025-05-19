@@ -9,10 +9,19 @@ class NewsModel {
     // Retrieve all news items from the database
     public function getAll() {
         global $pdo;
-        $stmt = $pdo->query("SELECT * FROM news");
+
+        // Join news with users to get author information
+        $sql = "SELECT 
+                    news.*, 
+                    users.name AS author_name, 
+                    users.email AS author_email
+                FROM news
+                INNER JOIN users ON news.user_id = users.id
+                ORDER BY news.published_at DESC";
+
+        $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
     // Retrieve a single news item by its slug
     public function getBySlug($slug) {
         global $pdo;
@@ -35,9 +44,9 @@ class NewsModel {
 
         // Prepare SQL insert statement with named placeholders
         $sql = "INSERT INTO news 
-            (title, slug, published_at, author, intro, content, image_path) 
+            (title, slug, published_at, user_id, intro, content, image_path) 
             VALUES 
-            (:title, :slug, :published_at, :author, :intro, :content, :image_path)";
+            (:title, :slug, :published_at, :user_id, :intro, :content, :image_path)";
 
         $stmt = $pdo->prepare($sql);
 
@@ -46,7 +55,7 @@ class NewsModel {
             'title'        => $data['title'],
             'slug'         => $data['slug'],
             'published_at' => $data['published_at'],
-            'author'       => $data['author'],
+            'user_id'      => $_SESSION['user']['id'],
             'intro'        => $data['intro'],
             'content'      => $data['content'],
             'image_path'   => $data['image_path']

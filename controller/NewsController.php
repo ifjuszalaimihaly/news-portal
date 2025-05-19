@@ -50,9 +50,6 @@ class NewsController {
         $content = trim($_POST['content'] ?? '');
         $publishedAt = date('Y-m-d H:i:s');
 
-        // Simulated author (replace with $_SESSION['user'] in real auth)
-        $author = 'Anonymous';
-
         // Validate required fields
         if ($title === '' || $intro === '' || $content === '') {
             http_response_code(400);
@@ -90,7 +87,6 @@ class NewsController {
                 'title'        => $title,
                 'slug'         => $slug,
                 'published_at' => $publishedAt,
-                'author'       => $author,
                 'intro'        => $intro,
                 'content'      => $content,
                 'image_path'   => $imagePath

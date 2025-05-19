@@ -2,6 +2,10 @@
 session_start();
 define('BASEPATH', true);
 
+if (isset($_SESSION['user'])) {
+    $user_id = $_SESSION['user']['id'];
+}
+
 // Get the request method
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
