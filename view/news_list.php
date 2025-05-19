@@ -5,6 +5,7 @@
     <title>News</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <?php include 'view/partials/header.php'; ?>
@@ -40,24 +41,42 @@
                 const slug = item.data('slug');
                 const id = item.data('id');
 
-                if (!confirm('Are you sure you want to delete this news item?')) return;
-
-                $.ajax({
-                    url: '/index.php',
-                    method: 'POST',
-                    data: { id: id, form_action: 'delete_news'},
-                    success: function (response) {
-                        if (response.success) {
-                            item.remove();
-                        } else {
-                            alert('Delete failed: ' + (response.error || 'Unknown error.'));
-                        }
-                    },
-                    error: function () {
-                        alert('Server error during deletion.');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to undo this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/index.php',
+                            method: 'POST',
+                            data: { id: id, form_action: 'delete_news' },
+                            success: function (response) {
+                                if (response.success) {
+                                    item.remove();
+                                    Swal.fire('Deleted!', 'The news item has been deleted.', 'success');
+                                } else {
+                                    Swal.fire('Error', response.error || 'Delete failed.', 'error');
+                                }
+                            },
+                            error: function (xhr) {
+                                let message = 'Unexpected error during deletion.';
+                                try {
+                                    const json = JSON.parse(xhr.responseText);
+                                    if (json.error) message = json.error;
+                                } catch (e) {}
+                                Swal.fire('Error', message, 'error');
+                            }
+                        });
                     }
                 });
             });
+
 
             $('.edit-button').click(function () {
                 const slug = $(this).closest('.news-item').data('slug');

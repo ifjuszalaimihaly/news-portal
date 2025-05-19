@@ -137,6 +137,12 @@ class NewsController {
             return;
         }
 
+        if($news_item['user_id'] !== $_SESSION['user']['id']){
+            http_response_code(401);
+            echo json_encode(['error' => 'Deleting this article is not allowed for this user.']);
+            return;
+        }
+
         // Delete the image file if it exists
         if (!empty($news_item['image_path']) && file_exists($news_item['image_path'])) {
             $this->deleteImage($news_item);
