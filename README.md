@@ -1,18 +1,24 @@
-This is a PHP news portal without using PHP framework
-Key functionality:
-- List news
-- Read news by one
-- Upload news with title, intro, text, published date, image
-- Edit news
-- Delete news
-- Users can edit or delete just own news item
+# PHP News Portal (Framework nélkül)
 
+Ez egy PHP alapú hírportál, amely nem használ semmilyen PHP keretrendszert.
 
-- Users can login to the system
-Test users:
-------
-email: alice@example.com
-password: uKf7@E!c9wZr
-------
-email: bob@example.com
-password: P#v9eLt3*Msd
+## Főbb funkciók
+
+- Hírek listázása
+- Egy adott hír megtekintése
+- Hír feltöltése (cím, bevezető, szöveg, megjelenési dátum, kép)
+- Hír szerkesztése
+- Hír törlése
+- A felhasználók csak a saját híreiket szerkeszthetik és törölhetik
+
+## Felhasználói rendszer
+
+- A felhasználók be tudnak jelentkezni a rendszerbe
+
+### Teszt felhasználók
+
+- Email: alice@example.com  
+  Jelszó: uKf7@E!c9wZr
+
+- Email: bob@example.com  
+  Jelszó: P#v9eLt3*Msd
